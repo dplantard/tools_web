@@ -1,0 +1,12 @@
+{
+    "headers":{
+        "User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:96.0) Gecko/20100101 Firefox/96.0"
+    },
+    "proxies":{
+        "http" : "http://127.0.0.1:8080",
+        "https" : "http://127.0.0.1:8080"
+    },
+    "cookies":{
+        "cookie_example":"example_value"
+    }
+}
