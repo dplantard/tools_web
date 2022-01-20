@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        
+        <link href="css/main_dark-theme.css" rel="stylesheet" id="theme-link">
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+        <title>XSS Generator</title>
+    </head>
+
+    <body>
+        <div class="container">
+            <div id= "shortcut" class="row">
+                <h1>XSS Tools and Payloads</h1>
+            </div>
+            <div id= "shortcut" class="row">
+                <h3>Shortcut</h3>
+                <form id="form_shortcut">
+                    <div class="row">
+                        <div class="col">
+                            <label>Test</label>
+                            <input type="radio" name="shortcut" value="test"/> 
+                            <label>Redirection</label>
+                            <input type="radio" name="shortcut" value="redirect"/> 
+                        </div>
+                        <div class="col">
+                            <label>output</label>
+                            <textarea type="textarea" name="shortcut_output" id="shortcut_output"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div id="encoding" class="row">
+                <h3>String Encoding</h3>
+                <form id="form_encoding">
+                    <div class="row">
+                        <div class="col">
+                            <label for="input" class="form-label">input</label>
+                            <textarea type="textarea" name="encoding_input" id="encoding_input"></textarea>
+                        </div>
+                        <div class="col">
+                            <label for="output" class="form-label">output</label>
+                            <textarea type="textarea" name="encoding_output" id="encoding_output"></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <button type="submit" value="fromCharCode">fromCharCode()</button>
+                            <button type="submit" value="charCodeAt">charCodeAt()</button>
+                        </div>
+                        <div class="col">
+                            <button type="submit" id="hexEncode">hexEncode()</button>
+                            <button type="submit" id="hexDecode">hexDecode()</button>
+                        </div>
+                        <div class="col">
+                            <button type="submit">Base64Encode()</button>
+                            <button type="submit">Base64Decode()</button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+
+ 
+
+        </div>
+
+    </body>
+    <script>
+        $(document).ready( function() { // Wait until document is fully parsed
+
+            /*==========================================*/
+            /*              ENCODING FUNCTIONS          */
+            /*==========================================*/
+            $("#form_encoding button").click(function(e){
+                e.preventDefault();
+                var input_text = $("#form_encoding #encoding_input").val()
+                var output_text = ""
+
+                /*----------------------------*/
+                /* String.fromCharCode() Case */
+                /*----------------------------*/
+                if($(this).attr("value")=="fromCharCode"){
+                    // Convert each letter to ascii code
+                    for (var i=0; i<input_text.length; i++){
+                            clear_letter = input_text.charAt(i)
+                            ascii_code = clear_letter.charCodeAt()
+                            if (i == 0){output_text = output_text+ascii_code}
+                            else {output_text = output_text+","+ascii_code}
+                        }
+                }
+
+
+                /*----------------------------*/
+                /*  String.charCodeAt() Case  */
+                /*----------------------------*/
+                if($(this).attr("value")=="charCodeAt"){
+                    input_text = input_text.split(',')
+                    // Convert each ascii code to letter
+                    for (var i=0; i<input_text.length; i++){
+                        console.log(input_text[i])
+                            ascii_code = input_text[i]
+                            console.log(ascii_code)
+                            output_text = output_text+String.fromCharCode(ascii_code)
+                        }
+                }
+
+
+        
+
+                // Case String.fromCharCode()
+
+                
+
+
+                // Case CharCodeAt()
+
+
+                // Case HexEncode()
+
+
+                // Case HexDecode()
+
+
+                // Case Base64Encode()
+                
+                
+                // Case Base64Decode()
+                
+
+
+                // write text in page
+                $('#encoding_output').val(output_text);
+            })
+  
+        })
+    </script>
+</html>

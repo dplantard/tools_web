@@ -156,7 +156,6 @@ def main(argv):
     ###############################    
     # DO WHAT YOU WANT TO DO HERE #
     ###############################
-
     response = requests.get(url, proxies=proxies, cookies=cookies, headers=headers, verify=False)
     html_code = colorize_html(response.text)
 
