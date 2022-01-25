@@ -12,16 +12,18 @@
                     This file is in json format.
                     See example_config.json
 
-        -h <header> : headers to add in the request headers
+        -he <header> : headers to add in the request headers
                       in json format
 
-        -p <proxies> : a proxy to use in json format
+        -pr <proxies> : a proxy to use in json format
 
                 default config is
                 {
                     "http" : "http://127.0.0.1:8080",
                     "https": "http://127.0.0.1:8080"
                 }
+
+        -po <post> : data to posts
 
         -c <cookies> : cookies to add in json format
 
@@ -121,6 +123,7 @@ def main():
                         nargs="?")
     parser.add_argument("-po", "--post",
                         help='list of data to POST in json format',
+                        const=None,
                         nargs="?")
     parser.add_argument("-c", "--cookies",
                         help='list of cookies to use in json format',
@@ -188,15 +191,28 @@ def main():
         else:
             headers = None
 
-        action_to_do(url, headers, cookies, proxies)
+        #############################
+        #       POST SETTINGS       #
+        #############################
+        if args.post:
+            data = args.post.replace("'", "\"")
+            data = json.loads(data)
+        else:
+            data = None
 
 
-def action_to_do(url, headers, cookies, proxies):
+        action_to_do(url, headers, cookies, proxies, data)
+
+
+def action_to_do(url, headers, cookies, proxies, data):
     """ Function where you write what
         you want to do here
     """
 
-    response = requests.get(url, proxies=proxies, cookies=cookies, headers=headers, verify=False)
+    if data is not None:
+        response = requests.post(url, proxies=proxies, cookies=cookies, headers=headers, data=data, verify=False)
+    else:
+        response = requests.get(url, proxies=proxies, cookies=cookies, headers=headers, verify=False)
     html_code = colorize_html(response.text)
 
     print("=====================================================")
