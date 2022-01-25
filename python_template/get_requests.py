@@ -55,11 +55,11 @@ def colorize_html(html_code):
     color_strings = colorama.Fore.YELLOW
     color_href = colorama.Fore.YELLOW + colorama.Style.BRIGHT
 
-    regex_tags = re.compile(r"((?!(\<\!\-\-(?:.|\n|\r)*?-->))\<[a-zA-Z0-9\S]*>|\<(?!(!))[a-zA-Z0-9]*)")
+    regex_tags = re.compile(r"((?!(\<\!\-\-(?:.|\n|\r)*?-->))\<[a-zA-Z0-9\S]*\>|\<(?!(!))[a-zA-Z0-9]*|\/\>)")
     regex_value = re.compile(r"(\".*?\"|\'.*?\')")
     regex_href = re.compile(r"(((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’])))")
-    regex_comment = re.compile(r"(\<\!\-\-(?:.|\n|\r)*?-->)")
     regex_attribute = re.compile(r"(\s[a-zA-Z]*(?:[\=]))")
+    regex_comment = re.compile(r"(\<\!\-\-(?:.|\n|\r)*?-->)")
 
     # Colorize tags
     html_code = re.sub(regex_tags, color_tag + r"\1" + color_reset, html_code)
@@ -89,19 +89,34 @@ def main(argv):
         "User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:96.0) Gecko/20100101 Firefox/96.0" 
     }
 
-    proxyDict = {
+    proxies = {
         "http" : "http://127.0.0.1:8080",
         "https": "http://127.0.0.1:8080"
     }
 
-
     # ARGUMENTS
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-u", "--url", required=True)
-    parser.add_argument("-f", "--file", help= 'Use json config file instead of arguments')
-    parser.add_argument("-P", "--proxies", help='list of proxies to use in json format', const=proxyDict, nargs="?")
-    parser.add_argument("-C", "--cookies", help='list of cookies to use in json format', const=None)
-    parser.add_argument("-H", "--headers", help='list of headers to use in json format', const=headers, nargs="?")
+    help_usage = """Usages : \n
+                    get_requests.py --url http://google.fr -pr "{'http':'http://127.0.0.1:8080','https':'http://127.0.0.1:8080'}" -he "{'personnal_header':'test'}"
+                """
+    parser = argparse.ArgumentParser(epilog=help_usage, formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("-u", "--url", 
+                        help='Url to target.', 
+                        required=True)
+    parser.add_argument("-f", "--file", 
+                        help='Use json config file instead of arguments')
+    parser.add_argument("-pr", "--proxies", 
+                        help='list of proxies to use in json format, \ndefault is http://127.0.0.1:8080', 
+                        const=proxies, 
+                        nargs="?")
+    parser.add_argument("-po", "--post", 
+                        help='list of data to POST in json format', 
+                        nargs="?")
+    parser.add_argument("-c", "--cookies", 
+                        help='list of cookies to use in json format', 
+                        const=None)
+    parser.add_argument("-he", "--headers", 
+                        help='list of headers to use in json format', 
+                        const=headers, nargs="?")
     args = parser.parse_args()
 
     #############################
@@ -124,7 +139,6 @@ def main(argv):
     #   CASE OF CONFIG FILE   #
     ###########################
     if args.file:
-        print("config file choose")
         with open(args.file, "r") as config_file:
             configuration = json.load(config_file)
             for config in configuration:
@@ -140,7 +154,8 @@ def main(argv):
         #      COOKIES SETTINGS     #
         #############################
         if args.cookies:
-            cookies = args.cookies
+            cookies = args.cookies.replace("'", "\"")
+            cookies = json.loads(args.cookies.replace('"', '\"'))
         else:
             cookies = None
 
@@ -148,9 +163,19 @@ def main(argv):
         #       PROXY SETTINGS      #
         #############################
         if args.proxies:
-            proxies = args.proxies
+            proxies = args.proxies.replace("'", "\"")
+            proxies = json.loads(proxies)
         else:
             proxies = None
+
+        ############################
+        #      HEADERS SETTINGS    #
+        ############################
+        if args.headers:
+            headers = args.headers.replace("'", "\"")
+            headers = json.loads(headers)
+        else:
+            headers = None
 
 
     ###############################    
@@ -162,7 +187,14 @@ def main(argv):
     print("=====================================================")
     # Headers
     for header in response.headers:
-        print(colorama.Fore.BLUE+colorama.Style.BRIGHT+header+colorama.Fore.RESET+" : "+response.headers[header])
+        if header == "Set-Cookie":
+            color_cookie_value = color_tag = colorama.Fore.MAGENTA+colorama.Style.BRIGHT
+            color_reset = colorama.Fore.RESET + colorama.Style.RESET_ALL
+            regex_cookie_value = re.compile(r"(\=.*\;)")
+            response.headers[header] = re.sub(regex_cookie_value, color_cookie_value + r"\1" + color_reset, response.headers[header])
+        else:
+            print(colorama.Fore.BLUE+colorama.Style.BRIGHT+header+colorama.Fore.RESET+" : "+response.headers[header])
+
     print()
 
     # Body
