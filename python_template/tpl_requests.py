@@ -1,4 +1,4 @@
-""" Template use to make GET request
+""" Template use to make GET and POST request
     against a target specified as first
     argument
 
