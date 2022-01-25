@@ -108,7 +108,8 @@ def main():
 
     # ARGUMENTS
     help_usage = """Usages : \n
-                    get_requests.py --url http://google.fr -pr "{'http':'http://127.0.0.1:8080','https':'http://127.0.0.1:8080'}" -he "{'personnal_header':'test'}"
+                    tpl_requests.py --url http://google.fr -pr "{'http':'http://127.0.0.1:8080','https':'http://127.0.0.1:8080'}" -he "{'personnal_header':'test'}"
+                    tpl_requests.py --url http://google.fr -pr "{'http':'http://127.0.0.1:8080','https':'http://127.0.0.1:8080'}" -he "{'personnal_header':'test'}" -s "<[a-z]{1,2}>"
                 """
     parser = argparse.ArgumentParser(epilog=help_usage,
                                     formatter_class=argparse.RawTextHelpFormatter)
@@ -130,6 +131,9 @@ def main():
                         const=None)
     parser.add_argument("-he", "--headers",
                         help='list of headers to use in json format',
+                        const=headers, nargs="?")
+    parser.add_argument("-s", "--search",
+                        help='search a pattern in response, can be a regex',
                         const=headers, nargs="?")
     args = parser.parse_args()
 
@@ -200,11 +204,16 @@ def main():
         else:
             data = None
 
+        if args.search:
+            search = args.search
+        else:
+            search = None
 
-        action_to_do(url, headers, cookies, proxies, data)
+
+        action_to_do(url, headers, cookies, proxies, data, search)
 
 
-def action_to_do(url, headers, cookies, proxies, data):
+def action_to_do(url, headers, cookies, proxies, data, search):
     """ Function where you write what
         you want to do here
     """
@@ -233,6 +242,12 @@ def action_to_do(url, headers, cookies, proxies, data):
     print()
 
     # Body
+    if search is not None:
+        color_search = colorama.Back.GREEN+colorama.Fore.WHITE
+        color_reset = colorama.Fore.RESET + colorama.Style.RESET_ALL
+        regex_search=re.compile(r"(%s)" % search)
+        # Colorize tags
+        html_code = re.sub(regex_search, color_search + r"\1" + color_reset, html_code)
     print(html_code)
 
 
