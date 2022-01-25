@@ -8,9 +8,11 @@
 
         -f <file> : use a configuration file instead
                     of positionnal arguments for
-                    headers, cookies and proxies.
+                    headers, cookies proxies and
+                    post.
                     This file is in json format.
-                    See example_config.json
+                    See example_config.json for
+                    example
 
         -he <header> : headers to add in the request headers
                       in json format
@@ -26,6 +28,8 @@
         -po <post> : data to posts
 
         -c <cookies> : cookies to add in json format
+
+        -s <search> : A pattern to search in the html code response
 
 """
 
@@ -109,7 +113,7 @@ def main():
     # ARGUMENTS
     help_usage = """Usages : \n
                     tpl_requests.py --url http://google.fr -pr "{'http':'http://127.0.0.1:8080','https':'http://127.0.0.1:8080'}" -he "{'personnal_header':'test'}"
-                    tpl_requests.py --url http://google.fr -pr "{'http':'http://127.0.0.1:8080','https':'http://127.0.0.1:8080'}" -he "{'personnal_header':'test'}" -s "<[a-z]{1,2}>"
+                    tpl_requests.py --url http://google.fr -he "{'personnal_header':'test'}" -s "<[a-z]{1,2}>"
                 """
     parser = argparse.ArgumentParser(epilog=help_usage,
                                     formatter_class=argparse.RawTextHelpFormatter)
@@ -166,6 +170,8 @@ def main():
                     proxies = configuration[config]
                 if config == "headers":
                     headers = configuration[config]
+                if config == "data":
+                    data = configuration[config]
 
     else:
         #############################
@@ -214,14 +220,26 @@ def main():
 
 
 def action_to_do(url, headers, cookies, proxies, data, search):
-    """ Function where you write what
-        you want to do here
+    """ Function used to write your code.
+
+        by default, perform get/post requests with
+        parameters provided in option.
+
+        you can override the code example if you want
+        to do your own task
     """
 
     if data is not None:
-        response = requests.post(url, proxies=proxies, cookies=cookies, headers=headers, data=data, verify=False)
+        response = requests.post(url, proxies=proxies,
+                                      cookies=cookies,
+                                      headers=headers,
+                                      data=data,
+                                      verify=False)
     else:
-        response = requests.get(url, proxies=proxies, cookies=cookies, headers=headers, verify=False)
+        response = requests.get(url, proxies=proxies,
+                                     cookies=cookies,
+                                     headers=headers,
+                                     verify=False)
     html_code = colorize_html(response.text)
 
     print("=====================================================")
@@ -245,10 +263,14 @@ def action_to_do(url, headers, cookies, proxies, data, search):
     if search is not None:
         color_search = colorama.Back.GREEN+colorama.Fore.WHITE
         color_reset = colorama.Fore.RESET + colorama.Style.RESET_ALL
-        regex_search=re.compile(r"(%s)" % search)
-        # Colorize tags
+        regex_search = re.compile(r"(%s)" % search)
+        # Colorize search
         html_code = re.sub(regex_search, color_search + r"\1" + color_reset, html_code)
     print(html_code)
+
+    if search is not None:
+        nbr_of_match = len(re.findall(regex_search, html_code))
+        print("Pattern \""+search+"\" match "+str(nbr_of_match)+" times")
 
 
 if __name__ == "__main__":
