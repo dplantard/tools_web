@@ -20,11 +20,6 @@ def crawl_integer(url, start, end, options):
         of the command line
     """
 
-    # Colorize
-    color_code_200 = colorama.Fore.GREEN
-    color_code_400 = colorama.Fore.RED
-    color_reset = colorama.Fore.RESET + colorama.Style.RESET_ALL 
-
     # Get options from command line
     if "cookies" in options:
         cookies = options["cookies"]
@@ -33,24 +28,19 @@ def crawl_integer(url, start, end, options):
         headers = options["headers"]
 
     if "proxies" in options:
-        headers = options["proxies"]
+        proxies = options["proxies"]
     
     if "symbol" in options:
         symbol = options["symbol"]
 
     if "time" in options:
-        print(options)
         time_throttle = float(options["time"])
     
     regex_sym = re.compile(symbol+".*"+symbol)
 
     for i in range(start, end):
-        # Build URL
-        final_url = re.sub(regex_sym, str(i) , url)
-        response = requests.get(final_url, headers=headers, cookies=cookies)
-        if response.status_code == 200:
-            print(final_url + " : "+color_code_200 + str(response.status_code)+color_reset)
-
+        # Action
+        action_to_do(response)
         time.sleep(time_throttle)
 
 
@@ -59,11 +49,6 @@ def crawl_list(url, wordlist, options):
         words specified in the -cl arguments
         of the command line
     """
-
-    # Colorize 
-    color_code_200 = colorama.Fore.GREEN
-    color_code_400 = colorama.Fore.RED
-    color_reset = colorama.Fore.RESET + colorama.Style.RESET_ALL
 
     # Get options from command line
     if "cookies" in options:
@@ -86,14 +71,48 @@ def crawl_list(url, wordlist, options):
     with open(wordlist, 'r', encoding='utf-8') as wordlist:
         for word in wordlist.readlines():
             if not word.startswith("#"):
-                # Build URL
-                word = word.rstrip()
-                final_url = re.sub(regex_sym, word , url)
-                response = requests.get(final_url, headers=headers, cookies=cookies)
-                if response.status_code == 200:
-                    print(final_url + " : "+color_code_200 + str(response.status_code)+color_reset)
-
+                # Action
+                # Build URL replacing pattern "°"
+                action_to_do(response)
                 time.sleep(time_throttle)
+
+
+def action_to_do(final_url):
+    """ function dedicated to the specific 
+        action you need to do
+    """
+    # Colorize 
+    color_code_200 = colorama.Fore.GREEN
+    color_code_400 = colorama.Fore.RED
+    color_reset = colorama.Fore.RESET + colorama.Style.RESET_ALL
+
+    response = requests.get(final_url, headers=headers, cookies=cookies)
+    if response.status_code == 200:
+        print(final_url + " : "+ color_code_200 + str(response.status_code)+color_reset)
+
+def action_example():
+    """ Example of function you can do
+        inject the payload in headers, cookies
+        and URL
+    """
+    final_headers = {}
+    final_cookies = {}
+
+    # Build Headers replacing pattern "°"
+    if headers is not None:
+        for header in headers:
+            final_headers[header] = re.sub(regex_sym, word, headers[header])
+
+    # Build Cookies replacing pattern "°"
+    if cookies is not None:
+        for cookies in cookies:
+            final_cookies[cookie] = re.sub(regex_sym, word, cookies[cookie])
+
+    # Build URL replacing pattern "°"
+    word = word.rstrip()
+    final_url = re.sub(regex_sym, word , url)
+    response = requests.get(final_url, headers=headers, cookies=cookies)
+
 
 def main():
     """ MAIN FUNCTION
@@ -104,7 +123,7 @@ def main():
     ####################
     # Default Headers settings
     headers = {
-        "User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:96.0) Gecko/20100101 Firefox/96.0"
+        "User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:96.0) Gecko/20100101 Firefox/°96°.0"
     }
 
     proxies = {
@@ -142,7 +161,7 @@ def main():
     parser.add_argument("-cb", "--crawl_brute",
                         help='crawl by brute force')
     parser.add_argument("-sy", "--symbol",
-                        help='symbole to delimit the craling element (default is "°")')
+                        help='symbole to delimit the crawling element (default is "°")')
     parser.add_argument("-t", "--time",
                         help='time in second between each request. Default is 0')
 
@@ -156,11 +175,20 @@ def main():
     options["symbol"] = "°"
     options["time"] = 0
     if args.cookies:
-        options["cookies"] = args.cookies
+        cookies = args.cookies.replace("'", "\"")
+        cookies = json.loads(args.cookies.replace('"', '\"'))
+        options["cookies"] = cookies
+
     if args.proxies:
-        options["proxies"] = args.proxies
+        proxies = args.proxies.replace("'", "\"")
+        proxies = json.loads(proxies)
+        options["proxies"] = proxies
+
     if args.headers:
-        options["headers"] = args.headers
+        headers = args.headers.replace("'", "\"")
+        headers = json.loads(headers)
+        options["headers"] = headers
+
     if args.symbol:
         options["symbol"] = args.symbol
     if args.time:
