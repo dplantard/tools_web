@@ -19,10 +19,13 @@ def crawl_integer(url, start, end, options):
         integer specified in the -ci arguments
         of the command line
     """
+
+    # Colorize
     color_code_200 = colorama.Fore.GREEN
     color_code_400 = colorama.Fore.RED
     color_reset = colorama.Fore.RESET + colorama.Style.RESET_ALL 
 
+    # Get options from command line
     if "cookies" in options:
         cookies = options["cookies"]
 
@@ -42,6 +45,7 @@ def crawl_integer(url, start, end, options):
     regex_sym = re.compile(symbol+".*"+symbol)
 
     for i in range(start, end):
+        # Build URL
         final_url = re.sub(regex_sym, str(i) , url)
         response = requests.get(final_url, headers=headers, cookies=cookies)
         if response.status_code == 200:
@@ -53,12 +57,15 @@ def crawl_integer(url, start, end, options):
 def crawl_list(url, wordlist, options):
     """ Function to crawl with a list of
         words specified in the -cl arguments
-        of the command line_
+        of the command line
     """
+
+    # Colorize 
     color_code_200 = colorama.Fore.GREEN
     color_code_400 = colorama.Fore.RED
     color_reset = colorama.Fore.RESET + colorama.Style.RESET_ALL
 
+    # Get options from command line
     if "cookies" in options:
             cookies =  options["cookies"]
 
@@ -79,6 +86,7 @@ def crawl_list(url, wordlist, options):
     with open(wordlist, 'r', encoding='utf-8') as wordlist:
         for word in wordlist.readlines():
             if not word.startswith("#"):
+                # Build URL
                 word = word.rstrip()
                 final_url = re.sub(regex_sym, word , url)
                 response = requests.get(final_url, headers=headers, cookies=cookies)
@@ -103,7 +111,6 @@ def main():
         "http" : "http://127.0.0.1:8080",
         "https": "http://127.0.0.1:8080"
     }
-
 
     # ARGUMENTS
     help_usage = """
@@ -138,7 +145,6 @@ def main():
                         help='symbole to delimit the craling element (default is "°")')
     parser.add_argument("-t", "--time",
                         help='time in second between each request. Default is 0')
-
 
     args = parser.parse_args()
 
@@ -186,7 +192,6 @@ def main():
     elif args.crawl_list:
         wordlist = args.crawl_list
         crawl_list(url, wordlist, options)
-
 
 if __name__ == "__main__":
     main()
