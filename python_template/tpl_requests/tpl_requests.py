@@ -34,12 +34,12 @@
 """
 
 # Local Modules
-import argparse
 import json
 import re
 import sys
 
 # External Modules
+import argparse
 import colorama
 import requests
 import validators
