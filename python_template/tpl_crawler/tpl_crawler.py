@@ -21,30 +21,43 @@ def crawl_integer(url, start, end, options):
     """
     color_code_200 = colorama.Fore.GREEN
     color_code_400 = colorama.Fore.RED
+    color_reset = colorama.Fore.RESET + colorama.Style.RESET_ALL 
 
     if "cookies" in options:
-        cookies =  options["cookies"]
+        cookies = options["cookies"]
 
     if "headers" in options:
-        headers =  options["headers"]
+        headers = options["headers"]
 
     if "proxies" in options:
-        headers =  options["proxies"]
+        headers = options["proxies"]
+    
+    if "symbol" in options:
+        symbol = options["symbol"]
+
+    if "time" in options:
+        print(options)
+        time_throttle = float(options["time"])
+    
+    regex_sym = re.compile(symbol+".*"+symbol)
 
     for i in range(start, end):
-        final_url = url+str(i)
+        final_url = re.sub(regex_sym, str(i) , url)
         response = requests.get(final_url, headers=headers, cookies=cookies)
         if response.status_code == 200:
-            print(final_url + " : "+color_code_200 + str(response.status_code))
+            print(final_url + " : "+color_code_200 + str(response.status_code)+color_reset)
+
+        time.sleep(time_throttle)
 
 
 def crawl_list(url, wordlist, options):
     """ Function to crawl with a list of
         words specified in the -cl arguments
-        of the command line
+        of the command line_
     """
     color_code_200 = colorama.Fore.GREEN
     color_code_400 = colorama.Fore.RED
+    color_reset = colorama.Fore.RESET + colorama.Style.RESET_ALL
 
     if "cookies" in options:
             cookies =  options["cookies"]
@@ -55,15 +68,24 @@ def crawl_list(url, wordlist, options):
     if "proxies" in options:
         headers =  options["proxies"]
 
+    if "symbol" in options:
+        symbol =  options["symbol"]
+
+    if "time" in options:
+        time_throttle = float(options["time"])
+
+    regex_sym = re.compile(symbol+".*"+symbol)
+
     with open(wordlist, 'r', encoding='utf-8') as wordlist:
         for word in wordlist.readlines():
             if not word.startswith("#"):
                 word = word.rstrip()
-                final_url = url+word
+                final_url = re.sub(regex_sym, word , url)
                 response = requests.get(final_url, headers=headers, cookies=cookies)
                 if response.status_code == 200:
-                    print(final_url + " : "+color_code_200 + str(response.status_code))
-                    print(word)
+                    print(final_url + " : "+color_code_200 + str(response.status_code)+color_reset)
+
+                time.sleep(time_throttle)
 
 def main():
     """ MAIN FUNCTION
@@ -82,10 +104,14 @@ def main():
         "https": "http://127.0.0.1:8080"
     }
 
+
     # ARGUMENTS
-    help_usage = """Usages : \n
-                    tpl_requests.py --url http://google.fr -pr "{'http':'http://127.0.0.1:8080','https':'http://127.0.0.1:8080'}" -he "{'personnal_header':'test'}"
-                    tpl_requests.py --url http://google.fr -he "{'personnal_header':'test'}" -s "<[a-z]{1,2}>"
+    help_usage = """
+                    Use the symbole "°" to specify the paramter/file/directory to crawl \n
+
+                    Example : \n
+                    tpl_crawler.py --url http://website.com/repos_°1° -ci 1-1000"
+                    tpl_requests.py --url http://website.com/index.php?param=°parameter° -cl wordlist.txt"
                 """
     parser = argparse.ArgumentParser(epilog=help_usage,
                                     formatter_class=argparse.RawTextHelpFormatter)
@@ -108,6 +134,11 @@ def main():
                         help='crawl by integer')
     parser.add_argument("-cb", "--crawl_brute",
                         help='crawl by brute force')
+    parser.add_argument("-sy", "--symbol",
+                        help='symbole to delimit the craling element (default is "°")')
+    parser.add_argument("-t", "--time",
+                        help='time in second between each request. Default is 0')
+
 
     args = parser.parse_args()
 
@@ -115,12 +146,19 @@ def main():
     options["headers"] = None
     options["cookies"] = None
     options["proxies"] = None
+    options["time"] = None
+    options["symbol"] = "°"
+    options["time"] = 0
     if args.cookies:
         options["cookies"] = args.cookies
     if args.proxies:
         options["proxies"] = args.proxies
     if args.headers:
         options["headers"] = args.headers
+    if args.symbol:
+        options["symbol"] = args.symbol
+    if args.time:
+        options["time"] = args.time
 
     #############################
     #       URL FORMATTING      #
